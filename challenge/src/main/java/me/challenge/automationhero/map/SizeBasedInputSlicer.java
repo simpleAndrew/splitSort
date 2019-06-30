@@ -2,16 +2,12 @@ package me.challenge.automationhero.map;
 
 import me.challenge.automationhero.utils.Logging;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Stream;
 
-public class SizeBasedInputSlicer implements Iterator<Stream<Integer>>, Iterable<Stream<Integer>>, Logging {
+public class SizeBasedInputSlicer implements Iterator<List<Integer>>, Iterable<List<Integer>>, Logging {
 
     private final long sliceSizeLimitBytes;
 
@@ -19,11 +15,11 @@ public class SizeBasedInputSlicer implements Iterator<Stream<Integer>>, Iterable
 
     public SizeBasedInputSlicer(InputStream originalInput, long sliceSizeLimitBytes) {
         this.sliceSizeLimitBytes = sliceSizeLimitBytes;
-        this.buff = new BufferedReader(new InputStreamReader(originalInput),  10);
+        this.buff = new BufferedReader(new InputStreamReader(new BufferedInputStream(originalInput, 1024 * 10)));
     }
 
     @Override
-    public Iterator<Stream<Integer>> iterator() {
+    public Iterator<List<Integer>> iterator() {
         return this;
     }
 
@@ -37,7 +33,7 @@ public class SizeBasedInputSlicer implements Iterator<Stream<Integer>>, Iterable
     }
 
     @Override
-    public Stream<Integer> next() {
+    public List<Integer> next() {
         log("Generating next list");
         List<Integer> result = new LinkedList<>();
         try {
@@ -49,14 +45,13 @@ public class SizeBasedInputSlicer implements Iterator<Stream<Integer>>, Iterable
                 result.add(Integer.parseInt(nextInt));
             }
             log("Finished list generation");
-            return result.stream();
+            return result;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private long listToByteSize(List<Integer> list) {
-        int i = list.size() * 4;
-        return i;
+        return list.size() * 4;
     }
 }

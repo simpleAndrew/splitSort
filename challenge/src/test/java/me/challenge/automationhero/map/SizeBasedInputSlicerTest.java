@@ -1,17 +1,14 @@
 package me.challenge.automationhero.map;
 
-import me.challenge.automationhero.map.SizeBasedInputSlicer;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.reducing;
 import static org.junit.Assert.*;
 
 public class SizeBasedInputSlicerTest {
@@ -39,7 +36,7 @@ public class SizeBasedInputSlicerTest {
     public void shouldReturnListCloseToGivenLimit() {
         SizeBasedInputSlicer slicer = buildSlicer(0, 1, 1L);
 
-        List<Integer> next = slicer.next().collect(Collectors.toList());
+        List<Integer> next = slicer.next();
 
         assertEquals("Should return have only 1 element", Collections.singletonList(0), next);
     }

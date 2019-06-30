@@ -5,10 +5,7 @@ import me.challenge.automationhero.utils.Logging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SortedMergingReducer implements StreamReducer, Logging {
@@ -35,9 +32,8 @@ public class SortedMergingReducer implements StreamReducer, Logging {
 
         log("Allocating " + perStreamMemory + " per sorted data stream");
 
-        List<StreamPicker> pickers = streamsToMerge.stream()
-                .map(in -> new StreamPicker(in, perStreamMemory))
-                .collect(Collectors.toList());
+        List<StreamPicker> pickers = new ArrayList<>();
+        streamsToMerge.forEach(stream -> pickers.add(new StreamPicker(stream, perStreamMemory)));
 
         log("StreamPicker created. Proceeding to merge");
 
