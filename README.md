@@ -15,7 +15,7 @@ It requires one argument - output file to generate int values to;
 
 I verified the app on my laptop: it manages to sort 1Gb file in approx 15 minutes.
 
-##What can be improved
+## What can be improved
 - algorithm of file merging - I think it can be optimised to consume less time, 
 as it never remove empty streams and iterates over them every time it looks for next int.
 - slicing algoryhm - I went by path of reading AND immediate sorting of data.
