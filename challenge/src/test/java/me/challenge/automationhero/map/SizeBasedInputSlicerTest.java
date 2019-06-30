@@ -1,20 +1,14 @@
-package me.challenge.automationhero;
+package me.challenge.automationhero.map;
 
-import com.sun.org.apache.xml.internal.dtm.ref.DTMDefaultBaseIterators;
-import org.junit.Before;
+import me.challenge.automationhero.map.SizeBasedInputSlicer;
 import org.junit.Test;
 
-import javax.swing.text.html.HTMLDocument;
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.reducing;

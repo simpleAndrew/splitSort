@@ -1,4 +1,6 @@
-package me.challenge.automationhero;
+package me.challenge.automationhero.map;
+
+import me.challenge.automationhero.utils.Logging;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,15 +11,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class SizeBasedInputSlicer implements Iterator<Stream<Integer>>, Iterable<Stream<Integer>> {
+public class SizeBasedInputSlicer implements Iterator<Stream<Integer>>, Iterable<Stream<Integer>>, Logging {
 
     private final long sliceSizeLimitBytes;
 
     private final BufferedReader buff;
 
-    SizeBasedInputSlicer(InputStream originalInput, long sliceSizeLimitBytes) {
+    public SizeBasedInputSlicer(InputStream originalInput, long sliceSizeLimitBytes) {
         this.sliceSizeLimitBytes = sliceSizeLimitBytes;
-        this.buff = new BufferedReader(new InputStreamReader(originalInput));
+        this.buff = new BufferedReader(new InputStreamReader(originalInput),  10);
     }
 
     @Override
@@ -36,6 +38,7 @@ public class SizeBasedInputSlicer implements Iterator<Stream<Integer>>, Iterable
 
     @Override
     public Stream<Integer> next() {
+        log("Generating next list");
         List<Integer> result = new LinkedList<>();
         try {
             while (listToByteSize(result) < sliceSizeLimitBytes) {
@@ -45,13 +48,15 @@ public class SizeBasedInputSlicer implements Iterator<Stream<Integer>>, Iterable
                 }
                 result.add(Integer.parseInt(nextInt));
             }
+            log("Finished list generation");
             return result.stream();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static long listToByteSize(List<Integer> list) {
-        return list.size() * 4;
+    private long listToByteSize(List<Integer> list) {
+        int i = list.size() * 4;
+        return i;
     }
 }

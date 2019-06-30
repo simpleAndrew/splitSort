@@ -1,9 +1,9 @@
-package me.challenge.automationhero;
+package me.challenge.automationhero.map;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-interface StreamSorter<D> {
+public interface StreamSorter<D> {
 
     List<D> readSorted(Stream<D> input);
 

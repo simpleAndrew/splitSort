@@ -1,5 +1,6 @@
-package me.challenge.automationhero;
+package me.challenge.automationhero.map;
 
+import me.challenge.automationhero.map.SimpleStreamSorter;
 import org.junit.Test;
 
 import java.util.*;

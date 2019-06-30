@@ -1,10 +1,10 @@
-package me.challenge.automationhero;
+package me.challenge.automationhero.reduce;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-interface SortedMerger {
+public interface StreamReducer {
 
     void mergeStreams(List<InputStream> streamsToMerge, OutputStream outputTarget);
 }
