@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Starter {
 
@@ -25,39 +26,33 @@ public class Starter {
 
         Starter starter = new Starter();
 
-        List<File> sortedFiles = starter.slicer.splitOnStreams(inputStream)
-                .map(inStream -> {
-                    try (BufferedReader reader = openWithBufferedReader(inStream)) {
-                        Stream<Integer> lines = reader.lines().map(Integer::parseInt);
-                        return starter.sorter.readSorted(lines);
-                    } catch (IOException e) {
-                        log("Failed to close an input stream", e);
-                        throw new RuntimeException("Failed to sort input:" + inputPath);
-                    }
-                })
+        List<File> sortedFiles = StreamSupport.stream(new SizeBasedInputSlicer(inputStream, 12).spliterator(), false)
+                .map(starter.sorter::readSorted)
                 .map(starter::storeOnFilesystem)
                 .collect(Collectors.toList());
 
-        List<BufferedReader> readers = sortedFiles.stream()
-                .map(Starter::openWithBufferedReader)
-                .collect(Collectors.toList());
-
-        List<Stream<Integer>> sortedStreams = readers.stream()
-                .map(reader -> reader.lines().map(Integer::parseInt))
+        List<InputStream> sortedStreams = sortedFiles.stream()
+                .map(Starter::openFileInputStream)
                 .collect(Collectors.toList());
 
         try (OutputStream out = Files.newOutputStream(Paths.get(outputPathStr))) {
             starter.merger.mergeStreams(sortedStreams, out);
         }
 
-        for (BufferedReader reader : readers) {
+        for (InputStream input : sortedStreams) {
             try {
-
-                reader.close();
-
+                input.close();
             } catch (IOException e) {
                 throw new RuntimeException("Can not close shard readers", e);
             }
+        }
+    }
+
+    private static FileInputStream openFileInputStream(File fileToRead) {
+        try {
+            return new FileInputStream(fileToRead);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -82,9 +77,8 @@ public class Starter {
         System.out.println(message);
     }
 
-    private InputSlicer slicer = new SlicerStub();
     private StreamSorter<Integer> sorter = new SorterStub<>();
-    private SortedMerger<Integer> merger = new MergerStub<>();
+    private SortedMerger merger = new MergerStub();
 
     private Path tempDirectory = initTempDirectory();
 
@@ -103,7 +97,7 @@ public class Starter {
             Path shard = Files.createTempFile(tempDirectory, "map-reduce", "shard");
             try (PrintWriter writer = new PrintWriter(new BufferedOutputStream(Files.newOutputStream(shard)))) {
                 results.stream().forEachOrdered(writer::println);
-
+                writer.flush();
                 if (writer.checkError()) throw new RuntimeException("Failed to write data on file system");
             }
             return shard.toFile();
@@ -113,18 +107,6 @@ public class Starter {
     }
 }
 
-
-interface InputSlicer {
-
-    Stream<InputStream> splitOnStreams(InputStream input);
-}
-
-class SlicerStub implements InputSlicer {
-    @Override
-    public Stream<InputStream> splitOnStreams(InputStream input) {
-        return Stream.empty();
-    }
-}
 
 interface StreamSorter<D extends Comparable<D>> {
 
@@ -139,14 +121,13 @@ class SorterStub<D extends Comparable<D>> implements StreamSorter<D> {
     }
 }
 
-interface SortedMerger<D extends Comparable<D>> {
+interface SortedMerger {
 
-    void mergeStreams(List<Stream<D>> streamsToMerge, OutputStream outputTarget);
+    void mergeStreams(List<InputStream> streamsToMerge, OutputStream outputTarget);
 }
 
-class MergerStub<D extends Comparable<D>> implements SortedMerger<D> {
+class MergerStub implements SortedMerger {
     @Override
-    public void mergeStreams(List<Stream<D>> streamsToMerge, OutputStream outputTarget) {
-
+    public void mergeStreams(List<InputStream> streamsToMerge, OutputStream outputTarget) {
     }
 }
