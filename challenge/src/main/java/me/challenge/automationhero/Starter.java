@@ -5,10 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class Starter {
@@ -77,7 +75,7 @@ public class Starter {
         System.out.println(message);
     }
 
-    private StreamSorter<Integer> sorter = new SorterStub<>();
+    private StreamSorter<Integer> sorter = new SimpleStreamSorter<>(Integer::compareTo);
     private SortedMerger merger = new MergerStub();
 
     private Path tempDirectory = initTempDirectory();
@@ -108,26 +106,3 @@ public class Starter {
 }
 
 
-interface StreamSorter<D extends Comparable<D>> {
-
-    List<D> readSorted(Stream<D> input);
-
-}
-
-class SorterStub<D extends Comparable<D>> implements StreamSorter<D> {
-    @Override
-    public List<D> readSorted(Stream<D> input) {
-        return new LinkedList<>();
-    }
-}
-
-interface SortedMerger {
-
-    void mergeStreams(List<InputStream> streamsToMerge, OutputStream outputTarget);
-}
-
-class MergerStub implements SortedMerger {
-    @Override
-    public void mergeStreams(List<InputStream> streamsToMerge, OutputStream outputTarget) {
-    }
-}
